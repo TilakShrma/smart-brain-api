@@ -2,7 +2,7 @@ const database = {
     users : [
         {
             id : '1',
-            name : 'abc',
+            name : 'til',
             email : 'abc',
             password : 'abc',
             entries : 0,
@@ -26,7 +26,7 @@ const database = {
         },
         {
             id : '4',
-            name : 'abc',
+            name : 'til',
             email : 'abc',
             password : 'abc',
             entries : 0,

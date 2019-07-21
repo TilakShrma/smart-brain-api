@@ -34,8 +34,41 @@ app.post('/register', (request, response)=>{
         joined : new Date()
         
     })
+
+    // return new added user
     response.json(database.users[database.users.length -1]);
 })
+
+
+// /profile/:id
+app.get('/profile/:id', (request, response) => {
+
+    const { id } = request.params;
+
+    database.users.forEach( user => {
+        if(user.id === id){
+            return response.json(user);
+        }
+    })
+
+    response.status(404).json("No such user found!");
+
+})
+
+// /Image
+
+app.put('/image', (request, response) => {
+    const {id} = request.body;
+    database.users.forEach( user => {
+        if(user.id === id){
+            user.entries++;
+            return response.json(user.entries);
+        }
+    })
+    
+
+})
+
 
 app.listen(3000, ()=>{
     console.log('Listening to localhost:3000....');
