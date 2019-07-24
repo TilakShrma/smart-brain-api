@@ -1,32 +1,39 @@
 const express = require('express');
-const database = require('./dummy_database');
+const bcrypt = require('bcrypt');
+var cors = require('cors');
 const bodyParser = require('body-parser');
+const database = require('./dummy_database');
 
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cors());
 
 app.get('/', (request, response)=>{
-    response.send('This is working');   
+    response.json(database.users);   
 })
 
 // SIGN IN
 app.post('/signin', (request, response)=>{
     if(request.body.email === database.users[0].email &&
         request.body.password === database.users[0].password){
-            response.json("signing in");
+            response.json('success');
         }
     else{
-        response.status(400).send("error signing in");
+        response.status(400).json("error signing in");
     }
 })
 
 // REGISTER
 app.post('/register', (request, response)=>{
     const { name, email ,password} = request.body;
+    bcrypt.hash(password, 1, function(err, hash) {
+        console.log(hash);
+    });
+
     database.users.push({
 
-        id : '5',
+        id : database.users.length,
         name : name,
         email : email,
         password : password,

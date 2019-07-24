@@ -3,8 +3,8 @@ const database = {
         {
             id : '1',
             name : 'til',
-            email : 'abc',
-            password : 'abc',
+            email : 'til@gmail.com',
+            password : 'til',
             entries : 0,
             joined : new Date(),
         },
@@ -12,7 +12,6 @@ const database = {
             id : '2',
             name : 'abc',
             email : 'abc',
-            password : 'abc',
             entries : 0,
             joined : new Date(),
         },
@@ -20,7 +19,6 @@ const database = {
             id : '3',
             name : 'abc',
             email : 'abc',
-            password : 'abc',
             entries : 0,
             joined : new Date(),
         },
@@ -28,9 +26,15 @@ const database = {
             id : '4',
             name : 'til',
             email : 'abc',
-            password : 'abc',
             entries : 0,
             joined : new Date(),
+        }
+    ],
+    login : [
+        {
+            id : '123',
+            hash : '',
+            email : 'abc'
         }
     ]
 }
