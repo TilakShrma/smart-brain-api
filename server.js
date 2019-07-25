@@ -17,7 +17,7 @@ app.get('/', (request, response)=>{
 app.post('/signin', (request, response)=>{
     if(request.body.email === database.users[0].email &&
         request.body.password === database.users[0].password){
-            response.json('success');
+            response.json(database.users[0]);
         }
     else{
         response.status(400).json("error signing in");
