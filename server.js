@@ -3,6 +3,20 @@ const bcrypt = require('bcrypt');
 var cors = require('cors');
 const bodyParser = require('body-parser');
 const database = require('./dummy_database');
+var knex = require('knex');
+
+const db = knex({
+    client: 'pg',
+    connection: {
+      host : '127.0.0.1',
+      user : 'postgres',
+      password : 'admin',
+      database : 'smartbrain'
+    }
+  });
+
+// console.log(db.select('*').from('users'));
+
 
 const app = express();
 
@@ -15,35 +29,67 @@ app.get('/', (request, response)=>{
 
 // SIGN IN
 app.post('/signin', (request, response)=>{
-    if(request.body.email === database.users[0].email &&
-        request.body.password === database.users[0].password){
-            response.json(database.users[0]);
+    // if(request.body.email === database.users[0].email &&
+    //     request.body.password === database.users[0].password){
+    //         response.json(database.users[0]);
+    //     }
+    // else{
+    //     response.status(400).json("error signing in");
+    // }
+
+    db.select('email', 'hash').from('login')
+    .where('email', '=', request.body.email)
+    .then(data => {
+
+        const isValid = bcrypt.compareSync(request.body.password, data[0].hash);
+        
+        if (isValid){
+            return db.select('*').from('users')
+            .where('email', '=', request.body.email)
+            .then(user => {
+                response.json(user[0])
+            })
+            .catch(err => response.status(400).json("unable to get user"));
         }
-    else{
-        response.status(400).json("error signing in");
-    }
+        else{
+            response.status(400).json("Wrong credentials")
+        }
+    })
+    .catch(err => response.status(400).json("wrong credentials"))
+    
+
 })
 
 // REGISTER
 app.post('/register', (request, response)=>{
+    const saltrounds = 10;
     const { name, email ,password} = request.body;
-    bcrypt.hash(password, 1, function(err, hash) {
-        console.log(hash);
-    });
+    const hash = bcrypt.hashSync(password, saltrounds);
 
-    database.users.push({
-
-        id : database.users.length,
-        name : name,
-        email : email,
-        password : password,
-        entries : 0,
-        joined : new Date()
-        
-    })
-
-    // return new added user
-    response.json(database.users[database.users.length -1]);
+    db.transaction(trx => {{
+        trx.insert({
+            email : email,
+            hash : hash
+        })
+        .into('login')
+        .returning('email')
+        .then(loginEmail => {
+            return trx('users')
+            .returning('*')
+            .insert({
+                email : loginEmail[0],
+                name : name,
+                joined : new Date()
+            })
+            .then(user => {
+                response.json(user[0]);
+            })
+        })
+        .then(trx.commit)
+        .catch(trx.rollback)
+    }})
+    .catch(err => response.status(400).json("unable to join"));
+    
 })
 
 
@@ -52,27 +98,42 @@ app.get('/profile/:id', (request, response) => {
 
     const { id } = request.params;
 
-    database.users.forEach( user => {
-        if(user.id === id){
-            return response.json(user);
-        }
+    // database.users.forEach( user => {
+    //     if(user.id === id){
+    //         return response.json(user);
+    //     }
+    // })
+
+    db('users').select('*')
+    .where({ id })
+    .then(user => {
+        user.length ? response.json(user[0])
+        : response.status(400).json("no such user")
     })
-
-    response.status(404).json("No such user found!");
-
+    
 })
 
 // /Image
 
 app.put('/image', (request, response) => {
     const {id} = request.body;
-    database.users.forEach( user => {
-        if(user.id === id){
-            user.entries++;
-            return response.json(user.entries);
-        }
-    })
     
+    // database.users.forEach( user => {
+    //     if(user.id === id){
+    //         user.entries++;
+    //         return response.json(user.entries);
+    //     }
+    // })
+    
+    db('users')
+    .where('id', '=', id)
+    .increment('entries',1)
+    .returning('entries')
+    .then(entries => {
+        response.json(entries[0])
+    })
+    .catch(err => response.status(400).json("unable to fetch entries"));
+
 
 })
 
