@@ -2,7 +2,6 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 var cors = require('cors');
 const bodyParser = require('body-parser');
-const database = require('./dummy_database');
 var knex = require('knex');
 
 const db = knex({
@@ -23,9 +22,9 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-app.get('/', (request, response)=>{
-    response.json(database.users);   
-})
+// app.get('/', (request, response)=>{
+//     response.json(database.users);   
+// })
 
 // SIGN IN
 app.post('/signin', (request, response)=>{
@@ -47,12 +46,12 @@ app.post('/signin', (request, response)=>{
             return db.select('*').from('users')
             .where('email', '=', request.body.email)
             .then(user => {
-                response.json(user[0])
+                response.json(user[0]);
             })
             .catch(err => response.status(400).json("unable to get user"));
         }
         else{
-            response.status(400).json("Wrong credentials")
+            response.status(400).json("Wrong credentials");
         }
     })
     .catch(err => response.status(400).json("wrong credentials"))
