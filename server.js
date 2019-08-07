@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 var cors = require('cors');
 const bodyParser = require('body-parser');
 var knex = require('knex');
+const register = require('./controllers/register');
+
 
 const db = knex({
     client: 'pg',
@@ -60,36 +62,7 @@ app.post('/signin', (request, response)=>{
 })
 
 // REGISTER
-app.post('/register', (request, response)=>{
-    const saltrounds = 10;
-    const { name, email ,password} = request.body;
-    const hash = bcrypt.hashSync(password, saltrounds);
-
-    db.transaction(trx => {{
-        trx.insert({
-            email : email,
-            hash : hash
-        })
-        .into('login')
-        .returning('email')
-        .then(loginEmail => {
-            return trx('users')
-            .returning('*')
-            .insert({
-                email : loginEmail[0],
-                name : name,
-                joined : new Date()
-            })
-            .then(user => {
-                response.json(user[0]);
-            })
-        })
-        .then(trx.commit)
-        .catch(trx.rollback)
-    }})
-    .catch(err => response.status(400).json("unable to join"));
-    
-})
+app.post('/register', (request, response) => {register.handleRegister(request, response, db, bcrypt)})
 
 
 // /profile/:id
