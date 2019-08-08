@@ -24,6 +24,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+app.get('/', (request, response) => { response.send('Server is fully operational!')});
 
 app.post('/signin', (request, response) => {signin.handleSignIn(request, response, db, bcrypt)});
 
