@@ -2,6 +2,10 @@ const handleRegister = (request, response, db, bcrypt) => {
     const saltrounds = 10;
     const { name, email ,password} = request.body;
     const hash = bcrypt.hashSync(password, saltrounds);
+    
+    if(!name || !email || !password){
+        return response.status(400).json("invalid form submission");
+    }
 
     db.transaction(trx => {{
         trx.insert({

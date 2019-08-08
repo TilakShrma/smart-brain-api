@@ -24,20 +24,16 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-// SIGN IN
+
 app.post('/signin', (request, response) => {signin.handleSignIn(request, response, db, bcrypt)});
 
-// REGISTER
 app.post('/register', (request, response) => {register.handleRegister(request, response, db, bcrypt)});
 
-
-// /profile/:id
 app.get('/profile/:id', (request, response) => {profile.handleGetProfile(request, response, db)});
-
-// /Image
 
 app.put('/image', (request, response) => {image.handleImage(request, response, db)});
 
+app.post('/imageApiCall', (request, response) => { image.handleApiCall(request, response)});
 
 app.listen(3000, ()=>{
     console.log('Listening to localhost:3000....');
