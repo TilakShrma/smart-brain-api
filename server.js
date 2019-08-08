@@ -35,7 +35,7 @@ app.put('/image', (request, response) => {image.handleImage(request, response, d
 
 app.post('/imageApiCall', (request, response) => { image.handleApiCall(request, response)});
 
-app.listen(3000, ()=>{
-    console.log('Listening to localhost:3000....');
+app.listen(process.env.PORT || 3000, ()=>{
+    console.log(`Listening to localhost ${process.env.PORT}`);
 })
 
